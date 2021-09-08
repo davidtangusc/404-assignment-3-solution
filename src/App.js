@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import $ from "jquery";
+import Loading from "./Loading";
+import DadJoke from "./DadJoke";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      joke: "",
+      isLoading: true,
+    };
+
+    $.ajax({
+      type: "GET",
+      url: "https://icanhazdadjoke.com/",
+      headers: { Accept: "application/json" },
+    }).then((response) => {
+      this.setState({ isLoading: false, joke: response.joke });
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <div>
+          {this.state.isLoading ? (
+            <Loading />
+          ) : (
+            <DadJoke joke={this.state.joke} />
+          )}
+        </div>
+        <button
+          onClick={() => {
+            this.setState({ isLoading: true });
+
+            $.ajax({
+              type: "GET",
+              url: "https://icanhazdadjoke.com/",
+              headers: { Accept: "application/json" },
+            }).then((response) => {
+              this.setState({ joke: response.joke, isLoading: false });
+            });
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+          Give me another dad joke
+        </button>
+      </div>
+    );
+  }
 }
-
-export default App;
